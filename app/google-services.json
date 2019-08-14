@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "211834822860",
+    "firebase_url": "https://dl-0a318.firebaseio.com",
+    "project_id": "dl-0a318",
+    "storage_bucket": "dl-0a318.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211834822860:android:746c6df5b48fbf0a",
+        "android_client_info": {
+          "package_name": "dien.com.pam_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211834822860-sacebgjmangupqd6at8021snm75e3v3h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2IiVuP9jUbkOUtwDWShu-bT0vqUeDGFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211834822860-sacebgjmangupqd6at8021snm75e3v3h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
