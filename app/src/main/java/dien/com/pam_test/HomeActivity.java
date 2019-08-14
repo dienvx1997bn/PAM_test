@@ -26,6 +26,7 @@ public class HomeActivity extends AppCompatActivity {
     Button btnAddTopic;
     ListView listTopic;
     ListView listMessage;
+    public static List<String> lstTopicID = new ArrayList<>();
 
     static List<TopicSubcription> model = new ArrayList<>();
     TopicAdapter adapter = null;
@@ -61,23 +62,37 @@ public class HomeActivity extends AppCompatActivity {
 
     void addNewTopic() {
         TopicSubcription t = new TopicSubcription();
-        t.setTopicID(CameraActivity.txtTopicId);
 
-        DownloadActivity dwn = new DownloadActivity();
-        List<TopicSubcription> tpsub = dwn.getTopicSubcription();
+        if(lstTopicID.contains(CameraActivity.txtTopicId)) {
+            CameraActivity.txtTopicId = null;
+        }
+        else {
+            lstTopicID.add(CameraActivity.txtTopicId);
+        }
 
-        TopicSubcription topicSubcription = findUsingIterator(CameraActivity.txtTopicId, tpsub);
+        if(CameraActivity.txtTopicId != null) {
+            t.setTopicID(CameraActivity.txtTopicId);
+            CameraActivity.txtTopicId = null;
+
+            DownloadActivity dwn = new DownloadActivity();
+            List<TopicSubcription> tpsub = dwn.getTopicSubcription();
+
+            TopicSubcription topicSubcription = findUsingIterator(t.getTopicID(), tpsub);
 //        Toast.makeText(this, "user" + findUsingIterator(CameraActivity.txtTopicId, tpsub).getMqtt_user(), Toast.LENGTH_LONG).show();
 
-        if (topicSubcription != null) {
-            t.setTopicname(topicSubcription.getTopicname());
-            t.setMqtt_user(topicSubcription.getMqtt_user());
-            t.setMqtt_pass(topicSubcription.getMqtt_pass());
-            adapter.add(t);
+            if (topicSubcription != null) {
+                t.setTopicname(topicSubcription.getTopicname());
+                t.setMqtt_user(topicSubcription.getMqtt_user());
+                t.setMqtt_pass(topicSubcription.getMqtt_pass());
+                adapter.add(t);
 
-            MqttClient mqttClient = new MqttClient(getApplicationContext());
-            //mqttClient.publishMessage(t.getTopicname());
-            mqttClient.subscribeToTopic(t.getTopicname());
+                MqttClient mqttClient = new MqttClient(getApplicationContext());
+                //mqttClient.publishMessage(t.getTopicname());
+                mqttClient.subscribeToTopic(t.getTopicname());
+            }
+            else {
+                Toast.makeText(this, "Không nhận dạng thiết bị", Toast.LENGTH_LONG).show();
+            }
         }
         else {
             Toast.makeText(this, "Trùng mã thiế bị", Toast.LENGTH_LONG).show();
