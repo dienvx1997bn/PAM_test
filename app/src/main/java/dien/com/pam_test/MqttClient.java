@@ -152,6 +152,11 @@ public class MqttClient {
         }
     }
 
+
+
+
+
+
     public void addToList(String subscriptionTopic, String mqttMessage) {
         messageReceive.put(subscriptionTopic, mqttMessage);
     }

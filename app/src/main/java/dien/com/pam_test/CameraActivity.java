@@ -39,7 +39,7 @@ public class CameraActivity extends AppCompatActivity {
                 this.startActivity(intent);
             }
             else {
-                Toast.makeText(this, "QR code Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "QR code Error", Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

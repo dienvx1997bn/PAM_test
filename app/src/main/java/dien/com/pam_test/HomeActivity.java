@@ -45,8 +45,9 @@ public class HomeActivity extends AppCompatActivity {
         listMessage.setAdapter(msgAdapter);
 
 
-        if (CameraActivity.txtTopicId != null)
+        if (CameraActivity.txtTopicId != null) {
             addNewTopic();
+        }
 
         btnAddTopic = findViewById(R.id.btn_add_topic);
         btnAddTopic.setOnClickListener(new View.OnClickListener() {
@@ -72,12 +73,15 @@ public class HomeActivity extends AppCompatActivity {
             t.setTopicname(topicSubcription.getTopicname());
             t.setMqtt_user(topicSubcription.getMqtt_user());
             t.setMqtt_pass(topicSubcription.getMqtt_pass());
-        }
-        adapter.add(t);
+            adapter.add(t);
 
-        MqttClient mqttClient = new MqttClient(getApplicationContext());
-        //mqttClient.publishMessage(t.getTopicname());
-        mqttClient.subscribeToTopic(t.getTopicname());
+            MqttClient mqttClient = new MqttClient(getApplicationContext());
+            //mqttClient.publishMessage(t.getTopicname());
+            mqttClient.subscribeToTopic(t.getTopicname());
+        }
+        else {
+            Toast.makeText(this, "Trùng mã thiế bị", Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -108,7 +112,7 @@ public class HomeActivity extends AppCompatActivity {
                 return topic.get(i);
             }
         }
-        Toast.makeText(this, "not found!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "not found!", Toast.LENGTH_LONG).show();
         return null;
     }
 

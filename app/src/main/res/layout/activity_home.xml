@@ -25,7 +25,7 @@
         android:id="@+id/btn_add_topic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Topic Subscription"
+        android:text="Quét QR code để nghe dữ liệu"
         />
 
 
