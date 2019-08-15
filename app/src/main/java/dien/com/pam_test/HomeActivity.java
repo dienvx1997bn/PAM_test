@@ -27,7 +27,7 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
     final String TAG = "dien_debug";
-
+    Button btnClear;
     Button btnAddTopic;
     ListView listTopic;
     ListView listMessage;
@@ -42,6 +42,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
 
         listTopic = findViewById(R.id.lst_topic_id);
         adapter = new TopicAdapter();
@@ -62,6 +63,14 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent myIntent = new Intent(HomeActivity.this, CameraActivity.class);
                 startActivity(myIntent);
+            }
+        });
+
+        btnClear = findViewById(R.id.btn_clear);
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                msgAdapter.clear();
             }
         });
     }
