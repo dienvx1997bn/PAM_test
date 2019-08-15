@@ -100,17 +100,17 @@ public class MqttClient {
                 }
 
                 @Override
-                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+                public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
                     String messageReceived = new String(mqttMessage.getPayload());
-                    Log.d(TAG, "messageArrived: " + messageReceived);
+                    //Log.d(TAG, "messageArrived: " + messageReceived);
 
 //                Toast.makeText(ct, messageReceived, Toast.LENGTH_SHORT).show();
 //                parseMqttMessage(new String(mqttMessage.getPayload()));
 //                HomeActivity home = new HomeActivity();
 //                home.addNewMessage(messageReceived);
-                    addToList(getSubTopic(), messageReceived);
+                    addToList(topic, messageReceived);
                     HomeActivity h = new HomeActivity();
-                    h.addNewMessage(getSubTopic(), messageReceived);
+                    h.addNewMessage(topic.substring(4), messageReceived);
                 }
 
                 @Override
