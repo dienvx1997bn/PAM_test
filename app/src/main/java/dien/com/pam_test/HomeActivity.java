@@ -1,6 +1,7 @@
 package dien.com.pam_test;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -11,10 +12,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,6 +78,42 @@ public class HomeActivity extends AppCompatActivity {
                 msgAdapter.clear();
             }
         });
+    }
+
+    public void deleteTopicClickHandle(View v) {
+        //get the row the clicked button is in
+        LinearLayout vwParentRow = (LinearLayout) v.getParent();
+        LinearLayout layout = (LinearLayout) vwParentRow.getChildAt(0);
+        LinearLayout layout1 = (LinearLayout) layout.getChildAt(0);
+        TextView topicname = (TextView) layout1.getChildAt(3);
+
+        //Button btnDelete = (Button)vwParentRow.getChildAt(1);
+        //vwParentRow.setBackgroundColor(Color.GREEN);
+        vwParentRow.refreshDrawableState();
+        vwParentRow.removeAllViews();
+
+        final String topic = topicname.getText().toString();
+        try {
+            IMqttToken unsubToken = MqttClient.client.unsubscribe(topicname.getText().toString());
+            unsubToken.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // The subscription could successfully be removed from the client
+                    Toast.makeText(HomeActivity.this, "Unsubscribe topic : " + topic + " successful", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken,
+                                      Throwable exception) {
+                    // some error occurred, this is very unlikely as even if the client
+                    // did not had a subscription to the topic the unsubscribe action
+                    // will be successfully
+                    Toast.makeText(HomeActivity.this, "Unsubscribe fail", Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -173,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
         return null;
     }
 
-    public String findTopicIDByTopicName(String topicName,  List<TopicSubcription> topic) {
+    public String findTopicIDByTopicName(String topicName, List<TopicSubcription> topic) {
         int i, n = topic.size();
 
         for (i = 0; i < n; i++) {

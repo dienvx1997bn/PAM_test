@@ -62,6 +62,7 @@
 
     </LinearLayout>
     <Button
+        android:onClick="deleteTopicClickHandle"
         android:text="Delete"
         android:layout_weight="1"
         android:layout_width="wrap_content"

@@ -31,7 +31,7 @@ public class MqttClient {
     public final String publishMessage = "Hello World!";
     private static final String USERNAME = "vuonrau";
     private static final String PASSWORD = "1122332211";
-    private static MqttAndroidClient client;
+    public static MqttAndroidClient client;
     private String subTopic;
     Context ct;
 
