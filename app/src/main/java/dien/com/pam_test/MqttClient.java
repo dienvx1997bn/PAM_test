@@ -23,14 +23,10 @@ public class MqttClient {
     final String TAG = "dien_debug";
 
     //MQTT config
-    public static final String haihoaMQTT = "tcp://emq.emmasoft.com.vn:1883";
-    public static final String testMQTT = "tcp://broker.hivemq.com:1883";
-    public static final String testMQTT2 = "tcp://postman.cloudmqtt.com:14092";
-//    public final String subscriptionTopic = "exampleAndroidPublishTopic";
-//    public final String publishTopic = "exampleAndroidPublishTopic";
-    public final String publishMessage = "Hello World!";
-    private static final String USERNAME = "vuonrau";
-    private static final String PASSWORD = "1122332211";
+    String haihoaMQTT = "tcp://emq.emmasoft.com.vn:1883";
+    String USERNAME = "vuonrau";
+    String PASSWORD = "1122332211";
+
     public static MqttAndroidClient client;
     private String subTopic;
     Context ct;
@@ -51,8 +47,6 @@ public class MqttClient {
         client = new MqttAndroidClient(ct, haihoaMQTT, clientId);
         try {
             MqttConnectOptions options = new MqttConnectOptions();
-//            options.setUserName("ejvoscut");
-//            options.setPassword("2wCkJuRPDPgs".toCharArray());
             options.setUserName(USERNAME);
             options.setPassword(PASSWORD.toCharArray());
             IMqttToken token = client.connect(options);
@@ -133,29 +127,7 @@ public class MqttClient {
             System.err.println("Exception whilst subscribing");
             ex.printStackTrace();
         }
-
-
     }
-
-    public void publishMessage(String mqttTopic) {
-
-        try {
-            MqttMessage message = new MqttMessage();
-            message.setPayload(publishMessage.getBytes());
-            client.publish(mqttTopic, message);
-            if (!client.isConnected()) {
-                //Toast.makeText(ct, "client is not connected, messages in buffer.", Toast.LENGTH_SHORT).show();
-            }
-        } catch (MqttException e) {
-            System.err.println("Error Publishing: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
 
     public void addToList(String subscriptionTopic, String mqttMessage) {
         messageReceive.put(subscriptionTopic, mqttMessage);

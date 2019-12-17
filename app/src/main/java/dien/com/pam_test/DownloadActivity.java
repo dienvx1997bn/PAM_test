@@ -2,6 +2,7 @@ package dien.com.pam_test;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,13 +23,19 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class DownloadActivity extends AppCompatActivity {
-    //Firebase var
-    private FirebaseDatabase mFirebaseInstance;
-    private DatabaseReference mFirebaseDatabase;
+//    //Firebase var
+//    private FirebaseDatabase mFirebaseInstance;
+//    private DatabaseReference mFirebaseDatabase;
 
     private String UserID;
 
@@ -39,36 +46,79 @@ public class DownloadActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_download);
+        readData();
+//        mFirebaseInstance = FirebaseDatabase.getInstance();
+//        mFirebaseDatabase = mFirebaseInstance.getReference();
+//
+//        UserID = mFirebaseDatabase.push().getKey();
+//
+//        mFirebaseDatabase.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+//                    TopicSubcription tp = new TopicSubcription();
+//                    tp.setTopicID(ds.child("mqtt_clientID").getValue(String.class));
+//                    tp.setMqtt_user(ds.child("mqtt_user").getValue(String.class));
+//                    tp.setMqtt_pass(ds.child("mqtt_pwd").getValue(String.class));
+//                    tp.setTopicname("aqi/" + tp.getMqtt_user());
+//                    list.add(tp);
+//                    //Toast.makeText(DownloadActivity.this, tp.getMqtt_user() + tp.getMqtt_pass() + tp.getTopicID(), Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Toast.makeText(DownloadActivity.this, "Failed to read value.", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-        mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseDatabase = mFirebaseInstance.getReference();
+//        AssetManager assetManager = getAssets();
+//        InputStream is = null;
+//
+//        try {
+//            is = assetManager.open("account.csv");
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//
+//        BufferedReader reader = null;
+//        reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+//
+//        String line = "";
+//        StringTokenizer st = null;
+//
+//        try {
+//
+//            while ((line = reader.readLine()) != null) {
+//                st = new StringTokenizer(line, ",");
+//                TopicSubcription tp = new TopicSubcription();
+//                tp.setTopicID(st.nextToken());
+//                String token = st.nextToken();
+//                tp.setMqtt_user(st.nextToken());
+//                tp.setMqtt_pass(st.nextToken());
+//                tp.setTopicname("aqi/" + tp.getMqtt_user());
+//                list.add(tp);
+//            }
+//        } catch (IOException e) {
+//
+//            e.printStackTrace();
+//        }
 
-        UserID = mFirebaseDatabase.push().getKey();
 
-        mFirebaseDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    TopicSubcription tp = new TopicSubcription();
-                    tp.setTopicID(ds.child("mqtt_clientID").getValue(String.class));
-                    tp.setMqtt_user(ds.child("mqtt_user").getValue(String.class));
-                    tp.setMqtt_pass(ds.child("mqtt_pwd").getValue(String.class));
-                    tp.setTopicname("aqi/" + tp.getMqtt_user());
-                    list.add(tp);
-                    //Toast.makeText(DownloadActivity.this, tp.getMqtt_user() + tp.getMqtt_pass() + tp.getTopicID(), Toast.LENGTH_SHORT).show();
-                }
-            }
+//            st = new StringTokenizer(line, ",");
+//            TopicSubcription tp = new TopicSubcription();
+//            tp.setTopicID(st.nextToken());
+//            String token = st.nextToken();
+//            tp.setMqtt_user(st.nextToken());
+//            tp.setMqtt_pass(st.nextToken());
+//            tp.setTopicname("aqi/" + tp.getMqtt_user());
+//            list.add(tp);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(DownloadActivity.this, "Failed to read value.", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         //Connect MQTT
         Context ct = getApplicationContext();
@@ -80,7 +130,38 @@ public class DownloadActivity extends AppCompatActivity {
         this.startActivity(intent);
     }
 
+    private void readData() {
+        InputStream is = getResources().openRawResource(R.raw.account);
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName("UTF-8")));
+        String line = "";
 
+        try {
+            while ((line = reader.readLine()) != null) {
+                // Split the line into different tokens (using the comma as a separator).
+                String[] tokens = line.split(",");
 
+//                // Read the data and store it in the WellData POJO.
+//                WellData wellData = new WellData();
+//                wellData.setOwner(tokens[0]);
+//                wellData.setApi(tokens[1]);
+//                wellData.setLongitude(tokens[2]);
+//                wellData.setLatitude(tokens[3]);
+//                wellData.setProperty(tokens[4]);
+//                wellData.setWellName(tokens[5]);
+//                wellDataList.add(wellData);
+
+                TopicSubcription tp = new TopicSubcription();
+                tp.setTopicID(tokens[0]);
+                tp.setMqtt_user(tokens[2]);
+                tp.setMqtt_pass(tokens[3]);
+                tp.setTopicname("aqi/" + tp.getMqtt_user());
+                list.add(tp);
+
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
 
 }
