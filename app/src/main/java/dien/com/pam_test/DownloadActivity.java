@@ -76,50 +76,6 @@ public class DownloadActivity extends AppCompatActivity {
 //            }
 //        });
 
-//        AssetManager assetManager = getAssets();
-//        InputStream is = null;
-//
-//        try {
-//            is = assetManager.open("account.csv");
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//
-//        BufferedReader reader = null;
-//        reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-//
-//        String line = "";
-//        StringTokenizer st = null;
-//
-//        try {
-//
-//            while ((line = reader.readLine()) != null) {
-//                st = new StringTokenizer(line, ",");
-//                TopicSubcription tp = new TopicSubcription();
-//                tp.setTopicID(st.nextToken());
-//                String token = st.nextToken();
-//                tp.setMqtt_user(st.nextToken());
-//                tp.setMqtt_pass(st.nextToken());
-//                tp.setTopicname("aqi/" + tp.getMqtt_user());
-//                list.add(tp);
-//            }
-//        } catch (IOException e) {
-//
-//            e.printStackTrace();
-//        }
-
-
-//            st = new StringTokenizer(line, ",");
-//            TopicSubcription tp = new TopicSubcription();
-//            tp.setTopicID(st.nextToken());
-//            String token = st.nextToken();
-//            tp.setMqtt_user(st.nextToken());
-//            tp.setMqtt_pass(st.nextToken());
-//            tp.setTopicname("aqi/" + tp.getMqtt_user());
-//            list.add(tp);
-
-
         //Connect MQTT
         Context ct = getApplicationContext();
 
@@ -140,16 +96,6 @@ public class DownloadActivity extends AppCompatActivity {
             while ((line = reader.readLine()) != null) {
                 // Split the line into different tokens (using the comma as a separator).
                 String[] tokens = line.split(",");
-
-//                // Read the data and store it in the WellData POJO.
-//                WellData wellData = new WellData();
-//                wellData.setOwner(tokens[0]);
-//                wellData.setApi(tokens[1]);
-//                wellData.setLongitude(tokens[2]);
-//                wellData.setLatitude(tokens[3]);
-//                wellData.setProperty(tokens[4]);
-//                wellData.setWellName(tokens[5]);
-//                wellDataList.add(wellData);
 
                 TopicSubcription tp = new TopicSubcription();
                 tp.setTopicID(tokens[0]);

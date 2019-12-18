@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,11 +32,17 @@ import java.util.Date;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
+    MqttClient mqttClient;
+
     final String TAG = "dien_debug";
+    public static TextView txt_connect_status;
     Button btnClear;
     Button btnAddTopic;
+    Button btn_delete;
+
     ListView listTopic;
     ListView listMessage;
+
     public static List<String> lstTopicID = new ArrayList<>();
     static List<TopicSubcription> model = new ArrayList<>();
     TopicAdapter adapter = null;
@@ -43,11 +50,29 @@ public class HomeActivity extends AppCompatActivity {
     static List<MessageSubcription> messageModel = new ArrayList<>();
     static MessageAdapter msgAdapter = null;
 
+    static String connectStatus = "";
+    List<Boolean> lstCheck;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mqttClient = new MqttClient(getApplicationContext());
+
+        lstCheck = new ArrayList<>();
+
+        txt_connect_status = findViewById(R.id.txt_connect_status);
+        if (connectStatus.equals("connect success")) {
+            txt_connect_status.setText("connect success");
+            txt_connect_status.setTextColor(Color.GREEN);
+        } else if (connectStatus.equals("connect faild")) {
+            txt_connect_status.setText("connect faild");
+            txt_connect_status.setTextColor(Color.RED);
+        } else if (connectStatus.equals("lost connect")) {
+            HomeActivity.txt_connect_status.setTextColor(Color.RED);
+            HomeActivity.txt_connect_status.setText("lost connect");
+        }
 
         listTopic = findViewById(R.id.lst_topic_id);
         adapter = new TopicAdapter();
@@ -78,41 +103,40 @@ public class HomeActivity extends AppCompatActivity {
                 msgAdapter.clear();
             }
         });
+
+        btn_delete = findViewById(R.id.btn_delete);
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < lstCheck.size(); i++)
+                    if (lstCheck.get(i) == true) {
+                        mqttClient.unsubTopic(adapter.getItem(i).getTopicname());
+                        adapter.remove(adapter.getItem(i));
+                    }
+            }
+        });
+
     }
 
-    public void deleteTopicClickHandle(View v) {
-        //get the row the clicked button is in
-        LinearLayout vwParentRow = (LinearLayout) v.getParent();
-        LinearLayout layout = (LinearLayout) vwParentRow.getChildAt(0);
-        LinearLayout layout1 = (LinearLayout) layout.getChildAt(0);
-        TextView topicname = (TextView) layout1.getChildAt(3);
+    @Override
+    public void onBackPressed() {
+//        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+//        setIntent.addCategory(Intent.CATEGORY_HOME);
+//        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        startActivity(setIntent);
+    }
 
-        //Button btnDelete = (Button)vwParentRow.getChildAt(1);
-        //vwParentRow.setBackgroundColor(Color.GREEN);
-        vwParentRow.refreshDrawableState();
-        vwParentRow.removeAllViews();
-
-        final String topic = topicname.getText().toString();
-        try {
-            IMqttToken unsubToken = MqttClient.client.unsubscribe(topicname.getText().toString());
-            unsubToken.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    // The subscription could successfully be removed from the client
-                    Toast.makeText(HomeActivity.this, "Unsubscribe topic : " + topic + " successful", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken,
-                                      Throwable exception) {
-                    // some error occurred, this is very unlikely as even if the client
-                    // did not had a subscription to the topic the unsubscribe action
-                    // will be successfully
-                    Toast.makeText(HomeActivity.this, "Unsubscribe fail", Toast.LENGTH_LONG).show();
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
+    public void checkboxChecked(View v) {
+        CheckBox cb;
+        for (int x = 0; x < listTopic.getChildCount(); x++) {
+            cb = (CheckBox) listTopic.getChildAt(x).findViewById(R.id.cbDelete);
+            if (cb.isChecked()) {
+//                String msg = "index " + x;
+//                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                lstCheck.add(x, true);
+            } else {
+                lstCheck.add(x, false);
+            }
         }
     }
 
@@ -142,16 +166,16 @@ public class HomeActivity extends AppCompatActivity {
                 t.setMqtt_pass(topicSubcription.getMqtt_pass());
                 adapter.add(t);
 
-                MqttClient mqttClient = new MqttClient(getApplicationContext());
                 //mqttClient.publishMessage(t.getTopicname());
                 mqttClient.subscribeToTopic(t.getTopicname());
             } else {
-                Toast.makeText(this, "Không nhận dạng thiết bị", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Can not recognize device", Toast.LENGTH_LONG).show();
             }
         } else {
-            Toast.makeText(this, "Trùng mã thiế bị", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Duplicate device", Toast.LENGTH_LONG).show();
         }
 
+        lstCheck.add(false);
     }
 
     private String getDateTime() {
@@ -162,42 +186,60 @@ public class HomeActivity extends AppCompatActivity {
 
     public void addNewMessage(String topicName, String messageReceived) throws JSONException {
         Log.d(TAG, "addNewMessage: " + topicName + ":  " + messageReceived);
-//        MessageSubcription m = findMessageSubcription(topicName, saveListMessageSubcription);
-//        if (m == null) {
-//            m = new MessageSubcription();
-//            saveListMessageSubcription.add(m);
-//            msgAdapter.add(m);
-//        }
-        MessageSubcription m = new MessageSubcription();
 
         JSONObject jsonRoot = new JSONObject(messageReceived);
         String type = jsonRoot.getString("typed");
         JSONArray jsonArray = jsonRoot.getJSONArray("value");
 
-        if (type.trim().equals("PMX")) {
-            float pm10 = Float.valueOf(jsonArray.getString(0));
-            float pm25 = Float.valueOf(jsonArray.getString(1));
-            m.setPm10(pm10);
-            m.setPm25(pm25);
-//            Log.d(TAG, "pm10 " + String.valueOf(pm10));
-//            Log.d(TAG, "pm25 " + String.valueOf(pm25));
-        } else if (type.trim().equals("SHT1X")) {
-            float hum = Float.valueOf(jsonArray.getString(0));
-            float temp = Float.valueOf(jsonArray.getString(2));
-            m.setHum(hum);
-            m.setTemp(temp);
-//            Log.d(TAG, "hum " + String.valueOf(hum));
-//            Log.d(TAG, "temp " + String.valueOf(temp));
-        } else if (type.trim().equals("GPS")) {
-            return;
-        }
-        m.setDate(getDateTime().trim());
         DownloadActivity dwn = new DownloadActivity();
         List<TopicSubcription> tpsub = dwn.getTopicSubcription();
         String topicID = findTopicIDByTopicName(topicName, tpsub);
 //        Log.d(TAG, "topicID" + topicID);
-        m.setTopicID(topicID);
-        msgAdapter.add(m);
+
+        boolean ret = false;
+        int i;
+        for (i = 0; i < msgAdapter.getCount(); i++) {
+            if (topicID.equals(msgAdapter.getItem(i).getTopicID())) {
+                ret = true;
+                break;
+            }
+        }
+        if (ret == false) {
+            MessageSubcription m = new MessageSubcription();
+
+            if (type.trim().equals("PMX")) {
+                float pm10 = Float.valueOf(jsonArray.getString(0));
+                float pm25 = Float.valueOf(jsonArray.getString(1));
+                m.setPm10(pm10);
+                m.setPm25(pm25);
+            } else if (type.trim().equals("SHT1X")) {
+                float hum = Float.valueOf(jsonArray.getString(0));
+                float temp = Float.valueOf(jsonArray.getString(2));
+                m.setHum(hum);
+                m.setTemp(temp);
+            } else if (type.trim().equals("GPS")) {
+                return;
+            }
+            m.setDate(getDateTime().trim());
+            m.setTopicID(topicID);
+            msgAdapter.add(m);
+        } else {
+            MessageSubcription old = msgAdapter.getItem(i);
+            if (type.trim().equals("PMX")) {
+                float pm10 = Float.valueOf(jsonArray.getString(0));
+                float pm25 = Float.valueOf(jsonArray.getString(1));
+                old.setPm10(pm10);
+                old.setPm25(pm25);
+            } else if (type.trim().equals("SHT1X")) {
+                float hum = Float.valueOf(jsonArray.getString(0));
+                float temp = Float.valueOf(jsonArray.getString(2));
+                old.setHum(hum);
+                old.setTemp(temp);
+                old.setDate(getDateTime().trim());
+            }
+            msgAdapter.remove(old);
+            msgAdapter.insert(old, i);
+        }
     }
 
     public TopicSubcription findTopicSubcription(String topicID, List<TopicSubcription> topic) {
@@ -255,22 +297,22 @@ public class HomeActivity extends AppCompatActivity {
 
     class TopicHolder {
         private TextView topicID = null;
-        private TextView topicName = null;
-        private TextView topicUser = null;
-        private TextView topicPass = null;
+//        private TextView topicName = null;
+//        private TextView topicUser = null;
+//        private TextView topicPass = null;
 
         TopicHolder(View row) {
             topicID = row.findViewById(R.id.txt_topic_id);
-            topicName = row.findViewById(R.id.txt_topic_name);
-            topicUser = row.findViewById(R.id.txt_mqtt_user);
-            topicPass = row.findViewById(R.id.txt_mqtt_pass);
+//            topicName = row.findViewById(R.id.txt_topic_name);
+//            topicUser = row.findViewById(R.id.txt_mqtt_user);
+//            topicPass = row.findViewById(R.id.txt_mqtt_pass);
         }
 
         void populateFrom(TopicSubcription t) {
             topicID.setText(t.getTopicID());
-            topicName.setText(t.getTopicname());
-            topicUser.setText(t.getMqtt_user());
-            topicPass.setText(t.getMqtt_pass());
+//            topicName.setText(t.getTopicname());
+//            topicUser.setText(t.getMqtt_user());
+//            topicPass.setText(t.getMqtt_pass());
 
         }
     }

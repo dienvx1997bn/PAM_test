@@ -29,11 +29,18 @@ public class CameraActivity extends AppCompatActivity {
         qrScan.initiateScan();
     }
 
+    @Override
+    public void onBackPressed() {
+        txtTopicId = null;
+        Intent intent = new Intent(this, HomeActivity.class);
+        this.startActivity(intent);
+    }
+
     //Getting the scan results
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
+        if (result != null && resultCode == RESULT_OK) {
             String[] lines = result.getContents().split("\r?\n");
 
             txtTopicId = lines[1];

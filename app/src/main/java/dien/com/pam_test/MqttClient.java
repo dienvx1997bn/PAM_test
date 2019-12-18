@@ -1,7 +1,9 @@
 package dien.com.pam_test;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -31,6 +33,7 @@ public class MqttClient {
     private String subTopic;
     Context ct;
 
+
     private String mqttMessage = null;
 
     public MqttClient(Context ct) {
@@ -54,13 +57,19 @@ public class MqttClient {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // We are connected
-                    Toast.makeText(ct, "connecting success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ct, "connecting success", Toast.LENGTH_LONG).show();
+                    HomeActivity.connectStatus = "connect success";
+                    HomeActivity.txt_connect_status.setTextColor(Color.GREEN);
+                    HomeActivity.txt_connect_status.setText("connect success");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     // Something went wrong e.g. connection timeout or firewall problems
-                    Toast.makeText(ct, "connecting faild", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ct, "connecting faild", Toast.LENGTH_LONG).show();
+                    HomeActivity.connectStatus = "connect faild";
+                    HomeActivity.txt_connect_status.setTextColor(Color.RED);
+                    HomeActivity.txt_connect_status.setText("connect faild");
                 }
             });
         } catch (MqttException e) {
@@ -68,6 +77,28 @@ public class MqttClient {
         }
 
         return client;
+    }
+
+    public void unsubTopic(String topic) {
+        try {
+            IMqttToken unsubToken = client.unsubscribe(topic);
+            unsubToken.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // The subscription could successfully be removed from the client
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken,
+                                      Throwable exception) {
+                    // some error occurred, this is very unlikely as even if the client
+                    // did not had a subscription to the topic the unsubscribe action
+                    // will be successfully
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     public void subscribeToTopic(String subscriptionTopic) {
@@ -91,6 +122,9 @@ public class MqttClient {
                 @Override
                 public void connectionLost(Throwable throwable) {
                     Toast.makeText(ct, "The Connection was lost.", Toast.LENGTH_SHORT).show();
+                    HomeActivity.connectStatus = "lost connect";
+                    HomeActivity.txt_connect_status.setTextColor(Color.RED);
+                    HomeActivity.txt_connect_status.setText("lost connect");
                 }
 
                 @Override
