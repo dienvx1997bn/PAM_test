@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -75,6 +76,7 @@ public class DownloadActivity extends AppCompatActivity {
 //                Toast.makeText(DownloadActivity.this, "Failed to read value.", Toast.LENGTH_SHORT).show();
 //            }
 //        });
+
 
         //Connect MQTT
         Context ct = getApplicationContext();

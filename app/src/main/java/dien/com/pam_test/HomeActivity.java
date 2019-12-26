@@ -19,8 +19,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
     static List<MessageSubcription> messageModel = new ArrayList<>();
     static MessageAdapter msgAdapter = null;
 
-    static String connectStatus = "";
+    public static String connectStatus = "";
     List<Boolean> lstCheck;
 
     @Override
@@ -63,6 +67,7 @@ public class HomeActivity extends AppCompatActivity {
         lstCheck = new ArrayList<>();
 
         txt_connect_status = findViewById(R.id.txt_connect_status);
+
         if (connectStatus.equals("connect success")) {
             txt_connect_status.setText("connect success");
             txt_connect_status.setTextColor(Color.GREEN);
@@ -70,8 +75,8 @@ public class HomeActivity extends AppCompatActivity {
             txt_connect_status.setText("connect faild");
             txt_connect_status.setTextColor(Color.RED);
         } else if (connectStatus.equals("lost connect")) {
-            HomeActivity.txt_connect_status.setTextColor(Color.RED);
-            HomeActivity.txt_connect_status.setText("lost connect");
+            txt_connect_status.setTextColor(Color.RED);
+            txt_connect_status.setText("lost connect");
         }
 
         listTopic = findViewById(R.id.lst_topic_id);
@@ -112,7 +117,60 @@ public class HomeActivity extends AppCompatActivity {
                     if (lstCheck.get(i) == true) {
                         mqttClient.unsubTopic(adapter.getItem(i).getTopicname());
                         adapter.remove(adapter.getItem(i));
+
+//                        lstTopicID.remove(i);
                     }
+            }
+        });
+
+
+        //
+        MqttClient.client.setCallback(new MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean reconnect, String s) {
+//                if (reconnect) {
+//                    //Toast.makeText(ct,  "Reconnected to : " + serverURI, Toast.LENGTH_SHORT).show();
+//                    // Because Clean Session is true, we need to re-subscribe
+//                    connectStatus = "Reconnect";
+//                    txt_connect_status.setTextColor(Color.BLACK);
+//                    txt_connect_status.setText("Reconnect");
+//                } else {
+//                    //Toast.makeText(ct,  "Connected to : " + serverURI, Toast.LENGTH_SHORT).show();
+//                    connectStatus = "connect success";
+//                    txt_connect_status.setText("connect success");
+//                    txt_connect_status.setTextColor(Color.GREEN);
+//                }
+                connectStatus = "connect success";
+                txt_connect_status.setText("connect success");
+                txt_connect_status.setTextColor(Color.GREEN);
+
+                for(int i = 0; i < model.size(); i++) {
+                    mqttClient.subscribeToTopic(model.get(i).getTopicname());
+                }
+            }
+
+            @Override
+            public void connectionLost(Throwable throwable) {
+                connectStatus = "lost connect";
+                txt_connect_status.setTextColor(Color.RED);
+                txt_connect_status.setText("lost connect");
+
+                mqttClient.connectMqtt();
+
+//                finish();
+//                startActivity(getIntent());
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+                String messageReceived = new String(mqttMessage.getPayload());
+
+                addNewMessage(topic.substring(4), messageReceived);
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
             }
         });
 
