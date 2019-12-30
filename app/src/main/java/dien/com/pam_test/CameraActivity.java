@@ -27,6 +27,8 @@ public class CameraActivity extends AppCompatActivity {
         qrScan = new IntentIntegrator(this);
         qrScan.setPrompt("Scan QR code");
         qrScan.initiateScan();
+
+
     }
 
     @Override

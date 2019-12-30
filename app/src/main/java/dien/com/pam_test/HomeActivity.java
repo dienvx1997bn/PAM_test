@@ -9,11 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +19,6 @@ import android.widget.Toast;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -155,6 +152,24 @@ public class HomeActivity extends AppCompatActivity {
                 txt_connect_status.setTextColor(Color.RED);
                 txt_connect_status.setText("lost connect");
 
+                try {
+                    IMqttToken disconToken = MqttClient.client.disconnect();
+                    disconToken.setActionCallback(new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken asyncActionToken) {
+                            // we are now successfully disconnected
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken asyncActionToken,
+                                              Throwable exception) {
+                            // something went wrong, but probably we are disconnected anyway
+                        }
+                    });
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+
                 mqttClient.connectMqtt();
 
 //                finish();
@@ -266,15 +281,15 @@ public class HomeActivity extends AppCompatActivity {
             MessageSubcription m = new MessageSubcription();
 
             if (type.trim().equals("PMX")) {
-                float pm10 = Float.valueOf(jsonArray.getString(0));
-                float pm25 = Float.valueOf(jsonArray.getString(1));
-                m.setPm10(pm10);
-                m.setPm25(pm25);
+                String pm10 = jsonArray.getString(0);
+                String pm25 = jsonArray.getString(1);
+                m.setPm10_s(pm10);
+                m.setPm25_s(pm25);
             } else if (type.trim().equals("SHT1X")) {
-                float hum = Float.valueOf(jsonArray.getString(0));
-                float temp = Float.valueOf(jsonArray.getString(2));
-                m.setHum(hum);
-                m.setTemp(temp);
+                String hum = jsonArray.getString(0);
+                String temp = jsonArray.getString(2);
+                m.setHum_s(hum);
+                m.setTemp_s(temp);
             } else if (type.trim().equals("GPS")) {
                 return;
             }
@@ -284,15 +299,15 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             MessageSubcription old = msgAdapter.getItem(i);
             if (type.trim().equals("PMX")) {
-                float pm10 = Float.valueOf(jsonArray.getString(0));
-                float pm25 = Float.valueOf(jsonArray.getString(1));
-                old.setPm10(pm10);
-                old.setPm25(pm25);
+                String pm10 = jsonArray.getString(0);
+                String pm25 = jsonArray.getString(1);
+                old.setPm10_s(pm10);
+                old.setPm25_s(pm25);
             } else if (type.trim().equals("SHT1X")) {
-                float hum = Float.valueOf(jsonArray.getString(0));
-                float temp = Float.valueOf(jsonArray.getString(2));
-                old.setHum(hum);
-                old.setTemp(temp);
+                String hum = jsonArray.getString(0);
+                String temp = jsonArray.getString(2);
+                old.setHum_s(hum);
+                old.setTemp_s(temp);
                 old.setDate(getDateTime().trim());
             }
             msgAdapter.remove(old);
@@ -421,10 +436,10 @@ public class HomeActivity extends AppCompatActivity {
         void populateFrom(MessageSubcription m) {
             txt_msg_time.setText(m.getDate());
             txt_msg_topicID.setText(m.getTopicID());
-            txt_msg_temp.setText(String.valueOf(m.getTemp()));
-            txt_msg_hum.setText(String.valueOf(m.getHum()));
-            txt_msg_pm25.setText(String.valueOf(m.getPm25()));
-            txt_msg_pm10.setText(String.valueOf(m.getPm10()));
+            txt_msg_temp.setText(String.valueOf(m.getTemp_s()));
+            txt_msg_hum.setText(String.valueOf(m.getHum_s()));
+            txt_msg_pm25.setText(String.valueOf(m.getPm25_s()));
+            txt_msg_pm10.setText(String.valueOf(m.getPm10_s()));
         }
     }
 }

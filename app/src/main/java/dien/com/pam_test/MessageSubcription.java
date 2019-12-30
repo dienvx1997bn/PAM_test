@@ -1,15 +1,13 @@
 package dien.com.pam_test;
 
-import java.util.Date;
-
 public class MessageSubcription {
     private String date;
     private String topicName;
     private String topicID;
-    private float temp;
-    private float hum;
-    private float pm25;
-    private float pm10;
+    private String temp_s;
+    private String hum_s;
+    private String pm25_s;
+    private String pm10_s;
 
 
     public String getDate() {
@@ -28,36 +26,36 @@ public class MessageSubcription {
         this.topicName = topicName;
     }
 
-    public float getTemp() {
-        return temp;
+    public String getTemp_s() {
+        return temp_s;
     }
 
-    public void setTemp(float temp) {
-        this.temp = temp;
+    public void setTemp_s(String temp_s) {
+        this.temp_s = temp_s;
     }
 
-    public float getHum() {
-        return hum;
+    public String getHum_s() {
+        return hum_s;
     }
 
-    public void setHum(float hum) {
-        this.hum = hum;
+    public void setHum_s(String hum_s) {
+        this.hum_s = hum_s;
     }
 
-    public float getPm25() {
-        return pm25;
+    public String getPm25_s() {
+        return pm25_s;
     }
 
-    public void setPm25(float pm25) {
-        this.pm25 = pm25;
+    public void setPm25_s(String pm25_s) {
+        this.pm25_s = pm25_s;
     }
 
-    public float getPm10() {
-        return pm10;
+    public String getPm10_s() {
+        return pm10_s;
     }
 
-    public void setPm10(float pm10) {
-        this.pm10 = pm10;
+    public void setPm10_s(String pm10_s) {
+        this.pm10_s = pm10_s;
     }
 
 

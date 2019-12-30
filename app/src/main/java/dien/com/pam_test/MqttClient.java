@@ -58,10 +58,10 @@ public class MqttClient {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // We are connected
-                    Toast.makeText(ct, "connecting success", Toast.LENGTH_LONG).show();
-                    HomeActivity.connectStatus = "connecting success";
-                    HomeActivity.txt_connect_status.setTextColor(Color.GREEN);
-                    HomeActivity.txt_connect_status.setText("connect success");
+//                    Toast.makeText(ct, "connecting success", Toast.LENGTH_LONG).show();
+//                    HomeActivity.connectStatus = "connecting success";
+//                    HomeActivity.txt_connect_status.setTextColor(Color.GREEN);
+//                    HomeActivity.txt_connect_status.setText("connect success");
                 }
 
                 @Override
@@ -71,11 +71,12 @@ public class MqttClient {
                     HomeActivity.connectStatus = "connecting faild";
                     HomeActivity.txt_connect_status.setTextColor(Color.RED);
                     HomeActivity.txt_connect_status.setText("connect faild");
+
+
                 }
             });
 
-            options.setAutomaticReconnect(true);
-
+            //options.setAutomaticReconnect(true);
 
         } catch (MqttException e) {
             e.printStackTrace();
