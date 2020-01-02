@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -114,8 +115,7 @@ public class HomeActivity extends AppCompatActivity {
                     if (lstCheck.get(i) == true) {
                         mqttClient.unsubTopic(adapter.getItem(i).getTopicname());
                         adapter.remove(adapter.getItem(i));
-
-//                        lstTopicID.remove(i);
+                        lstTopicID.remove(i);
                     }
             }
         });
@@ -241,6 +241,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 //mqttClient.publishMessage(t.getTopicname());
                 mqttClient.subscribeToTopic(t.getTopicname());
+
             } else {
                 Toast.makeText(this, "Can not recognize device", Toast.LENGTH_LONG).show();
             }
@@ -258,7 +259,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void addNewMessage(String topicName, String messageReceived) throws JSONException {
-        Log.d(TAG, "addNewMessage: " + topicName + ":  " + messageReceived);
+//        Log.d(TAG, "addNewMessage: " + topicName + ":  " + messageReceived);
 
         JSONObject jsonRoot = new JSONObject(messageReceived);
         String type = jsonRoot.getString("typed");
