@@ -2,27 +2,9 @@ package dien.com.pam_test;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +13,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class DownloadActivity extends AppCompatActivity {
 //    //Firebase var
@@ -62,12 +43,12 @@ public class DownloadActivity extends AppCompatActivity {
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                for (DataSnapshot ds : dataSnapshot.getChildren()) {
 //                    TopicSubcription tp = new TopicSubcription();
-//                    tp.setTopicID(ds.child("mqtt_clientID").getValue(String.class));
+//                    tp.setTopicSN(ds.child("mqtt_clientID").getValue(String.class));
 //                    tp.setMqtt_user(ds.child("mqtt_user").getValue(String.class));
 //                    tp.setMqtt_pass(ds.child("mqtt_pwd").getValue(String.class));
 //                    tp.setTopicname("aqi/" + tp.getMqtt_user());
 //                    list.add(tp);
-//                    //Toast.makeText(DownloadActivity.this, tp.getMqtt_user() + tp.getMqtt_pass() + tp.getTopicID(), Toast.LENGTH_SHORT).show();
+//                    //Toast.makeText(DownloadActivity.this, tp.getMqtt_user() + tp.getMqtt_pass() + tp.getTopicSN(), Toast.LENGTH_SHORT).show();
 //                }
 //            }
 //
@@ -100,7 +81,8 @@ public class DownloadActivity extends AppCompatActivity {
                 String[] tokens = line.split(",");
 
                 TopicSubcription tp = new TopicSubcription();
-                tp.setTopicID(tokens[0]);
+                tp.setTopicSN(tokens[0]);
+                tp.setTopicAP(tokens[1]);
                 tp.setMqtt_user(tokens[2]);
                 tp.setMqtt_pass(tokens[3]);
                 tp.setTopicname("aqi/" + tp.getMqtt_user());

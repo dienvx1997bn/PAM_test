@@ -1,43 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20px"
     android:orientation="vertical"
+    android:padding="20px"
     tools:context=".CameraActivity">
 
-<LinearLayout
-    android:weightSum="2"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/addManual"
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3">
 
-    <EditText
-        android:id="@+id/txt_add_manual"
-        android:paddingLeft="10dp"
-        android:layout_weight="1"
-        android:text="0A318"
-        android:textSize="26dp"
-        android:textAllCaps="true"
-        android:layout_width="0dp"
-        android:layout_height="match_parent">
-    </EditText>
-    <Button
-        android:onClick="addManual"
-        android:layout_weight="1"
-        android:id="@+id/btn_add_manual"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="ADD" />
+        <EditText
+            android:id="@+id/txt_add_manual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:paddingLeft="10dp"
+            android:text="0A318"
+            android:textAllCaps="true"
+            android:textSize="26dp"></EditText>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_add_manual"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="addManual"
+            android:text="ADD" />
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/buttonScan"
         android:layout_width="match_parent"
         android:layout_height="96dp"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/addManual"
+        android:layout_marginTop="43dp"
         android:text="Scan QR Code" />
 
-
-</LinearLayout>
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="end"
+        android:layout_marginBottom="5dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:srcCompat="@mipmap/pam_air" />
+</RelativeLayout>

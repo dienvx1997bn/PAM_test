@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +16,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +35,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 public class HomeActivity extends AppCompatActivity {
     MqttClient mqttClient;
@@ -55,27 +62,34 @@ public class HomeActivity extends AppCompatActivity {
     public static String connectStatus = "";
     List<Boolean> lstCheck;
 
+    String txtTopicIdCamera = "";
+
+    RequestQueue queue;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        queue = Volley.newRequestQueue(getApplicationContext());
+
+
+        Intent intent = getIntent();
+        txtTopicIdCamera = intent.getStringExtra("txtTopicId"); //if it's a string you stored.
+        if(txtTopicIdCamera == "") {
+            txtTopicIdCamera = "";
+        }
 
         mqttClient = new MqttClient(getApplicationContext());
 
         lstCheck = new ArrayList<>();
 
         txt_connect_status = findViewById(R.id.txt_connect_status);
-
-        if (connectStatus.equals("connect success")) {
-            txt_connect_status.setText("connect success");
-            txt_connect_status.setTextColor(Color.GREEN);
-        } else if (connectStatus.equals("connect faild")) {
-            txt_connect_status.setText("connect faild");
-            txt_connect_status.setTextColor(Color.RED);
-        } else if (connectStatus.equals("lost connect")) {
-            txt_connect_status.setTextColor(Color.RED);
-            txt_connect_status.setText("lost connect");
-        }
 
         listTopic = findViewById(R.id.lst_topic_id);
         adapter = new TopicAdapter();
@@ -84,11 +98,6 @@ public class HomeActivity extends AppCompatActivity {
         listMessage = findViewById(R.id.lst_message);
         msgAdapter = new MessageAdapter();
         listMessage.setAdapter(msgAdapter);
-
-
-        if (CameraActivity.txtTopicId != null) {
-            addNewTopic();
-        }
 
         btnAddTopic = findViewById(R.id.btn_add_topic);
         btnAddTopic.setOnClickListener(new View.OnClickListener() {
@@ -120,30 +129,28 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        if (txtTopicIdCamera != null) {
+            addNewTopic();
+        }
+        updateUI();
+    }
 
-        //
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         MqttClient.client.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String s) {
-//                if (reconnect) {
-//                    //Toast.makeText(ct,  "Reconnected to : " + serverURI, Toast.LENGTH_SHORT).show();
-//                    // Because Clean Session is true, we need to re-subscribe
-//                    connectStatus = "Reconnect";
-//                    txt_connect_status.setTextColor(Color.BLACK);
-//                    txt_connect_status.setText("Reconnect");
-//                } else {
-//                    //Toast.makeText(ct,  "Connected to : " + serverURI, Toast.LENGTH_SHORT).show();
-//                    connectStatus = "connect success";
-//                    txt_connect_status.setText("connect success");
-//                    txt_connect_status.setTextColor(Color.GREEN);
-//                }
                 connectStatus = "connect success";
                 txt_connect_status.setText("connect success");
                 txt_connect_status.setTextColor(Color.GREEN);
 
-                for(int i = 0; i < model.size(); i++) {
+                for (int i = 0; i < model.size(); i++) {
                     mqttClient.subscribeToTopic(model.get(i).getTopicname());
                 }
+                updateUI();
             }
 
             @Override
@@ -152,28 +159,26 @@ public class HomeActivity extends AppCompatActivity {
                 txt_connect_status.setTextColor(Color.RED);
                 txt_connect_status.setText("lost connect");
 
-                try {
-                    IMqttToken disconToken = MqttClient.client.disconnect();
-                    disconToken.setActionCallback(new IMqttActionListener() {
-                        @Override
-                        public void onSuccess(IMqttToken asyncActionToken) {
-                            // we are now successfully disconnected
-                        }
-
-                        @Override
-                        public void onFailure(IMqttToken asyncActionToken,
-                                              Throwable exception) {
-                            // something went wrong, but probably we are disconnected anyway
-                        }
-                    });
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    IMqttToken disconToken = MqttClient.client.disconnect();
+//                    disconToken.setActionCallback(new IMqttActionListener() {
+//                        @Override
+//                        public void onSuccess(IMqttToken asyncActionToken) {
+//                            // we are now successfully disconnected
+//                        }
+//
+//                        @Override
+//                        public void onFailure(IMqttToken asyncActionToken,
+//                                              Throwable exception) {
+//                            // something went wrong, but probably we are disconnected anyway
+//                        }
+//                    });
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                }
 
                 mqttClient.connectMqtt();
-
-//                finish();
-//                startActivity(getIntent());
+                updateUI();
             }
 
             @Override
@@ -188,7 +193,22 @@ public class HomeActivity extends AppCompatActivity {
 
             }
         });
+    }
 
+    private void updateUI() {
+        if (connectStatus.equals("connect success")) {
+            txt_connect_status.setText("connect success");
+            txt_connect_status.setTextColor(Color.GREEN);
+        } else if (connectStatus.equals("connect faild")) {
+            txt_connect_status.setText("connect faild");
+            txt_connect_status.setTextColor(Color.RED);
+        } else if (connectStatus.equals("lost connect")) {
+            txt_connect_status.setTextColor(Color.RED);
+            txt_connect_status.setText("lost connect");
+        } else if (connectStatus.equals("")) {
+            txt_connect_status.setTextColor(Color.RED);
+            txt_connect_status.setText("connecting");
+        }
     }
 
     @Override
@@ -217,20 +237,20 @@ public class HomeActivity extends AppCompatActivity {
     void addNewTopic() {
         TopicSubcription t = new TopicSubcription();
 
-        if (lstTopicID.contains(CameraActivity.txtTopicId)) {
-            CameraActivity.txtTopicId = null;
+        if (lstTopicID.contains(txtTopicIdCamera)) {
+            txtTopicIdCamera = "";
         } else {
-            lstTopicID.add(CameraActivity.txtTopicId);
+            lstTopicID.add(txtTopicIdCamera);
         }
 
-        if (CameraActivity.txtTopicId != null) {
-            t.setTopicID(CameraActivity.txtTopicId);
-            CameraActivity.txtTopicId = null;
+        if (txtTopicIdCamera != "") {
+            t.setTopicSN(txtTopicIdCamera);
+            txtTopicIdCamera = "";
 
             DownloadActivity dwn = new DownloadActivity();
             List<TopicSubcription> tpsub = dwn.getTopicSubcription();
 
-            TopicSubcription topicSubcription = findTopicSubcription(t.getTopicID(), tpsub);
+            TopicSubcription topicSubcription = findTopicSubcription(t.getTopicSN(), tpsub);
 //        Toast.makeText(this, "user" + findUsingIterator(CameraActivity.txtTopicId, tpsub).getMqtt_user(), Toast.LENGTH_LONG).show();
 
             if (topicSubcription != null) {
@@ -242,6 +262,11 @@ public class HomeActivity extends AppCompatActivity {
                 //mqttClient.publishMessage(t.getTopicname());
                 mqttClient.subscribeToTopic(t.getTopicname());
 
+                //post data here
+                postData(topicSubcription.getTopicSN(), topicSubcription.getTopicAP(),topicSubcription.getMqtt_user(),topicSubcription.getMqtt_pass());
+
+
+
             } else {
                 Toast.makeText(this, "Can not recognize device", Toast.LENGTH_LONG).show();
             }
@@ -250,6 +275,39 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         lstCheck.add(false);
+    }
+
+    public void postData(final String sn, final String ap, final String user, final String pass) {
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                Constants.url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("TAG", "Response: " + response);
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put(Constants.sn, sn);
+                params.put(Constants.ap, ap);
+                params.put(Constants.user, user);
+                params.put(Constants.pass, pass);
+                return params;
+            }
+        };
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                50000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(request);
     }
 
     private String getDateTime() {
@@ -321,7 +379,7 @@ public class HomeActivity extends AppCompatActivity {
         int i, n = topic.size();
 
         for (i = 0; i < n; i++) {
-            if (topic.get(i).getTopicID().trim().equals(topicID.trim())) {
+            if (topic.get(i).getTopicSN().trim().equals(topicID.trim())) {
                 //Toast.makeText(this, "return user " + topic.get(i).getMqtt_user(), Toast.LENGTH_SHORT).show();
                 return topic.get(i);
             }
@@ -336,7 +394,7 @@ public class HomeActivity extends AppCompatActivity {
         for (i = 0; i < n; i++) {
             if ((topic.get(i).getTopicname().substring(4)).trim().equals(topicName.trim())) {
                 //Toast.makeText(this, "return user " + topic.get(i).getMqtt_user(), Toast.LENGTH_SHORT).show();
-                return topic.get(i).getTopicID();
+                return topic.get(i).getTopicSN();
             }
         }
         //Toast.makeText(this, "not found!", Toast.LENGTH_LONG).show();
@@ -383,7 +441,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         void populateFrom(TopicSubcription t) {
-            topicID.setText(t.getTopicID());
+            topicID.setText(t.getTopicSN());
 //            topicName.setText(t.getTopicname());
 //            topicUser.setText(t.getMqtt_user());
 //            topicPass.setText(t.getMqtt_pass());

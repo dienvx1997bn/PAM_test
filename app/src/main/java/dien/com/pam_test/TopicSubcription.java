@@ -1,19 +1,26 @@
 package dien.com.pam_test;
 
-import java.util.Date;
-
 public class TopicSubcription {
-    private String topicID;
+    private String topicSN;
+    private String topicAP;
     private String topicname;
     private String mqtt_user;
     private String mqtt_pass;
 
-    public String getTopicID() {
-        return topicID;
+    public String getTopicAP() {
+        return topicAP;
     }
 
-    public void setTopicID(String topicID) {
-        this.topicID = topicID;
+    public void setTopicAP(String topicAP) {
+        this.topicAP = topicAP;
+    }
+
+    public String getTopicSN() {
+        return topicSN;
+    }
+
+    public void setTopicSN(String topicSN) {
+        this.topicSN = topicSN;
     }
 
     public String getTopicname() {

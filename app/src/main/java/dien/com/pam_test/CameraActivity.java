@@ -17,7 +17,7 @@ import java.util.List;
 
 public class CameraActivity extends AppCompatActivity {
 
-    public static String txtTopicId = null;
+    public String txtTopicId = null;
 
     TextView txt_add_manual;
     Button buttonScan;
@@ -30,6 +30,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+        txtTopicId = null;
 
         txt_add_manual = findViewById(R.id.txt_add_manual);
         txt_add_manual.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
@@ -87,6 +88,7 @@ public class CameraActivity extends AppCompatActivity {
 
                 if (checkHave(txtTopicId) == true) {
                     Intent intent = new Intent(this, HomeActivity.class);
+                    intent.putExtra("txtTopicId", txtTopicId); //Optional parameters
                     this.startActivity(intent);
                 } else {
                     Toast.makeText(this, "Can not recognize device", Toast.LENGTH_LONG).show();
@@ -102,11 +104,11 @@ public class CameraActivity extends AppCompatActivity {
 
     boolean checkHave(String txtTopicId) {
         TopicSubcription t = new TopicSubcription();
-        t.setTopicID(txtTopicId);
+        t.setTopicSN(txtTopicId);
 
         DownloadActivity dwn = new DownloadActivity();
         List<TopicSubcription> tpsub = dwn.getTopicSubcription();
-        TopicSubcription topicSubcription = findTopicSubcription(t.getTopicID(), tpsub);
+        TopicSubcription topicSubcription = findTopicSubcription(t.getTopicSN(), tpsub);
         if (topicSubcription != null) {
             return true;
         }
@@ -118,7 +120,7 @@ public class CameraActivity extends AppCompatActivity {
         int i, n = topic.size();
 
         for (i = 0; i < n; i++) {
-            if (topic.get(i).getTopicID().trim().equals(topicID.trim())) {
+            if (topic.get(i).getTopicSN().trim().equals(topicID.trim())) {
                 //Toast.makeText(this, "return user " + topic.get(i).getMqtt_user(), Toast.LENGTH_SHORT).show();
                 return topic.get(i);
             }
